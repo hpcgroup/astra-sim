@@ -1,0 +1,41 @@
+-- {fmt} version: 11.0.2
+-- Build type: Release
+-- Build spdlog: 1.14.1
+-- Build type: Release
+CMake Error at /workspace/scripts/astra-sim/extern/network_backend/analytical/extern/yaml-cpp/CMakeLists.txt:84 (add_library):
+  add_library cannot create target "yaml-cpp" because another target with the
+  same name already exists.  The existing target is a static library created
+  in source directory "/workspace/scripts/astra-sim/extern/helper/yaml-cpp".
+  See documentation for policy CMP0002 for more details.
+
+
+CMake Error at /workspace/scripts/astra-sim/extern/network_backend/analytical/extern/yaml-cpp/CMakeLists.txt:85 (add_library):
+  add_library cannot create ALIAS target "yaml-cpp::yaml-cpp" because another
+  target with the same name already exists.
+
+
+CMake Error at /workspace/scripts/astra-sim/extern/network_backend/analytical/extern/yaml-cpp/util/CMakeLists.txt:1 (add_executable):
+  add_executable cannot create target "yaml-cpp-sandbox" because another
+  target with the same name already exists.  The existing target is an
+  executable created in source directory
+  "/workspace/scripts/astra-sim/extern/helper/yaml-cpp/util".  See
+  documentation for policy CMP0002 for more details.
+
+
+CMake Error at /workspace/scripts/astra-sim/extern/network_backend/analytical/extern/yaml-cpp/util/CMakeLists.txt:2 (add_executable):
+  add_executable cannot create target "yaml-cpp-parse" because another target
+  with the same name already exists.  The existing target is an executable
+  created in source directory
+  "/workspace/scripts/astra-sim/extern/helper/yaml-cpp/util".  See
+  documentation for policy CMP0002 for more details.
+
+
+CMake Error at /workspace/scripts/astra-sim/extern/network_backend/analytical/extern/yaml-cpp/util/CMakeLists.txt:3 (add_executable):
+  add_executable cannot create target "yaml-cpp-read" because another target
+  with the same name already exists.  The existing target is an executable
+  created in source directory
+  "/workspace/scripts/astra-sim/extern/helper/yaml-cpp/util".  See
+  documentation for policy CMP0002 for more details.
+
+
+-- Configuring incomplete, errors occurred!

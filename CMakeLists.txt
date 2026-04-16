@@ -21,17 +21,11 @@ endif()
 project(AstraSim)
 
 # Add libraries.
-include(FetchContent)
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/extern/helper/fmt")
 option(SPDLOG_FMT_EXTERNAL ON) # override default option for spdlog.
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/extern/helper/spdlog")
-FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-    GIT_TAG a83cd31 # Current as of 2025-10-01
-)
-FetchContent_MakeAvailable(yaml-cpp)
+# Use local yaml-cpp instead of FetchContent to avoid git operations
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/extern/helper/yaml-cpp")
 
 
 # Find Protobuf
