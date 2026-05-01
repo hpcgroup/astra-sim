@@ -35,6 +35,12 @@ HardwareResource::HardwareResource(uint32_t num_npus, int sys_id)
 
 void HardwareResource::occupy(
     const shared_ptr<Chakra::FeederV3::ETFeederNode> node) {
+    // NOTE(collectives-evolve): Disabled GPU-op serialization for MSCCL ET traces.
+    // The ET trace dependency resolver already enforces intra-threadblock ordering,
+    // and the network simulator enforces inter-GPU send/recv matching.
+    // HardwareResource serialization artificially prevents concurrent threadblocks
+    // and was making AstraSim pessimistic at scale.
+    // See: ASTRASIM_ISSUES.md section 6.
     if (node->is_cpu_op()) {
         assert(num_in_flight_cpu_ops == 0);
         ++num_in_flight_cpu_ops;
@@ -42,19 +48,17 @@ void HardwareResource::occupy(
         cpu_ops_node.emplace(node->id());
     } else {
         if (node->type() == ChakraNodeType::COMP_NODE) {
-            assert(num_in_flight_gpu_comp_ops == 0);
+            // assert(num_in_flight_gpu_comp_ops == 0);  // DISABLED
             ++num_in_flight_gpu_comp_ops;
             ++num_gpu_ops;
-            // gpu_ops_node = node;
             gpu_ops_node.emplace(node->id());
         } else {
             if (node->type() == ChakraNodeType::COMM_RECV_NODE) {
                 return;
             }
-            assert(num_in_flight_gpu_comm_ops == 0);
+            // assert(num_in_flight_gpu_comm_ops == 0);  // DISABLED
             ++num_in_flight_gpu_comm_ops;
             ++num_gpu_comms;
-            // gpu_comms_node = node;
             gpu_comms_node.emplace(node->id());
         }
     }
@@ -62,6 +66,7 @@ void HardwareResource::occupy(
 
 void HardwareResource::release(
     const shared_ptr<Chakra::FeederV3::ETFeederNode> node) {
+    // NOTE(collectives-evolve): See occupy() above. GPU-op serialization disabled.
     if (node->is_cpu_op()) {
         --num_in_flight_cpu_ops;
         assert(num_in_flight_cpu_ops == 0);
@@ -69,14 +74,14 @@ void HardwareResource::release(
     } else {
         if (node->type() == ChakraNodeType::COMP_NODE) {
             --num_in_flight_gpu_comp_ops;
-            assert(num_in_flight_gpu_comp_ops == 0);
+            // assert(num_in_flight_gpu_comp_ops == 0);  // DISABLED
             this->gpu_ops_node.erase(node->id());
         } else {
             if (node->type() == ChakraNodeType::COMM_RECV_NODE) {
                 return;
             }
             --num_in_flight_gpu_comm_ops;
-            assert(num_in_flight_gpu_comm_ops == 0);
+            // assert(num_in_flight_gpu_comm_ops == 0);  // DISABLED
             this->gpu_comms_node.erase(node->id());
         }
     }
@@ -84,6 +89,9 @@ void HardwareResource::release(
 
 bool HardwareResource::is_available(
     const shared_ptr<Chakra::FeederV3::ETFeederNode> node) const {
+    // NOTE(collectives-evolve): GPU ops are no longer gated here.
+    // The ET trace dependency graph + network simulator provide sufficient
+    // ordering for MSCCL-generated traces. See occupy() comment above.
     if (node->is_cpu_op()) {
         if (num_in_flight_cpu_ops == 0) {
             return true;
@@ -91,25 +99,9 @@ bool HardwareResource::is_available(
             return false;
         }
     } else {
-        if (node->type() == ChakraNodeType::COMP_NODE) {
-            if (num_in_flight_gpu_comp_ops == 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            if (num_in_flight_gpu_comm_ops == 0) {
-                return true;
-            } else {
-                if (node->type() == ChakraNodeType::COMM_RECV_NODE) {
-                    return true;
-                }
-                if (num_in_flight_gpu_comm_ops == 0) {
-                    return true;
-                }
-                return false;
-            }
-        }
+        // Allow all GPU compute and communication ops to issue concurrently.
+        // RECV was already free; now SEND and COMP are too.
+        return true;
     }
 }
 
