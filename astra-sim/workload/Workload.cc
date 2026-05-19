@@ -401,6 +401,7 @@ void Workload::issue_send_comm(
     // Record communication size for bandwidth calculation
     stats->get_operator_statistics(node->id()).comm_size = size;
     const auto tag = node->comm_tag<uint32_t>();
+    const auto delay = node->comm_delay_ns<uint64_t>();
 
     sim_request snd_req;
     snd_req.srcRank = src;
@@ -411,8 +412,8 @@ void Workload::issue_send_comm(
     sehd->wlhd = new WorkloadLayerHandlerData;
     sehd->wlhd->node_id = node->id();
     sehd->event = EventType::PacketSent;
-    sys->front_end_sim_send(0, Sys::dummy_data, size, UINT8, dst, tag, &snd_req,
-                            Sys::FrontEndSendRecvType::NATIVE,
+    sys->front_end_sim_send(delay, Sys::dummy_data, size, UINT8, dst, tag,
+                            &snd_req, Sys::FrontEndSendRecvType::NATIVE,
                             &Sys::handleEvent, sehd);
 }
 

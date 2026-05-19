@@ -60,8 +60,9 @@ void CustomAlgorithm::issue(shared_ptr<Chakra::FeederV3::ETFeederNode> node) {
         sehd->wlhd = new WorkloadLayerHandlerData;
         sehd->wlhd->node_id = node->id();
         sehd->event = EventType::PacketSent;
+        const auto delay = node->comm_delay_ns<uint64_t>();
         stream->owner->front_end_sim_send(
-            0, Sys::dummy_data,
+            delay, Sys::dummy_data,
             // Note that we're using the comm size as hardcoded in the Impl
             // Chakra et, ed through the comm. api, and ignore the comm.size fed
             // in the workload chakra et. TODO: fix.
