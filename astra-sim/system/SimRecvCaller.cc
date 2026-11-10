@@ -10,7 +10,7 @@ using namespace AstraSim;
 
 SimRecvCaller::SimRecvCaller(Sys* sys,
                              void* buffer,
-                             int count,
+                             uint64_t count,
                              int type,
                              int src,
                              int tag,

@@ -99,6 +99,10 @@ void Statistics::extract_comp_comm_overlap() {
         case OperatorStatistics::OperatorType::COMM:
             has_comm = true;
             break;
+        case OperatorStatistics::OperatorType::CPU:
+            // CPU-op COMP nodes (e.g. a per-rank NCCL proxy resource) are not part of the
+            // GPU compute / comm overlap; skip them instead of aborting the run.
+            break;
         default:
             throw std::runtime_error(
                 "Only GPU and COMM types are supported for overlap extraction");

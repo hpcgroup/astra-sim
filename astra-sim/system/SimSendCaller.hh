@@ -15,7 +15,7 @@ namespace AstraSim {
 class SimSendCaller : public Callable {
   public:
     void* buffer;
-    int count;
+    uint64_t count;
     int type;
     int dst;
     int tag;
@@ -27,7 +27,7 @@ class SimSendCaller : public Callable {
     Sys* sys;
     SimSendCaller(Sys* sys,
                   void* buffer,
-                  int count,
+                  uint64_t count,
                   int type,
                   int dst,
                   int tag,

@@ -4,6 +4,9 @@ LICENSE file in the root directory of this source tree.
 *******************************************************************************/
 
 #include "astra-sim/common/Logging.hh"
+#include <cstdlib>
+#include <iostream>
+#include <string>
 #include "common/CmdLineParser.hh"
 #include "congestion_unaware/CongestionUnawareNetworkApi.hh"
 #include <astra-network-analytical/common/EventQueue.h>
@@ -99,6 +102,23 @@ int main(int argc, char* argv[]) {
         event_queue->proceed();
     }
 
+    // completion check (krydzy/check-complete): every rank must have run every ET node
+    int incomplete = 0;
+    for (auto it : systems) {
+        if (!it->workload->check_complete()) {
+            incomplete++;
+        }
+    }
+    const char* allow = std::getenv("ASTRASIM_ALLOW_INCOMPLETE");
+    const bool allow_incomplete = allow != nullptr && std::string(allow) == "1";
+    if (incomplete > 0) {
+        std::cerr << "ASTRA-sim ERROR: incomplete simulation: " << incomplete << " of " << systems.size()
+                  << " ranks did not run every ET node" << (allow_incomplete ? " (ASTRASIM_ALLOW_INCOMPLETE=1: exit 0)" : "")
+                  << std::endl;
+        std::cout << "ASTRA-sim ERROR: incomplete simulation: " << incomplete << " of " << systems.size()
+                  << " ranks" << std::endl;
+    }
+
     for (auto it : systems) {
         delete it;
     }
@@ -106,5 +126,5 @@ int main(int argc, char* argv[]) {
 
     // terminate simulation
     AstraSim::LoggerFactory::shutdown();
-    return 0;
+    return (incomplete > 0 && !allow_incomplete) ? 3 : 0;
 }

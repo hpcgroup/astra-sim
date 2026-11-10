@@ -10,7 +10,7 @@ using namespace AstraSim;
 
 SimSendCaller::SimSendCaller(Sys* sys,
                              void* buffer,
-                             int count,
+                             uint64_t count,
                              int type,
                              int dst,
                              int tag,

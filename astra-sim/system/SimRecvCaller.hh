@@ -16,7 +16,7 @@ namespace AstraSim {
 class SimRecvCaller : public Callable {
   public:
     void* buffer;
-    int count;
+    uint64_t count;
     int type;
     int src;
     int tag;
@@ -28,7 +28,7 @@ class SimRecvCaller : public Callable {
     Sys* sys;
     SimRecvCaller(Sys* sys,
                   void* buffer,
-                  int count,
+                  uint64_t count,
                   int type,
                   int src,
                   int tag,
